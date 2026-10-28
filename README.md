@@ -88,34 +88,55 @@ which is why double-clicking `index.html` works without a server.
 
 ## Adding a level
 
+There are 50 levels in 10 groups of 5: single animals, size, fur/feathers/scales,
+legs and homes, colours, "everyone except…", two clues at once, "this or that",
+and two groups of three-clue detective levels.
+
 Add an object to `AL.LEVELS` in `js/levels.js`. The map grows on its own:
 
 ```js
 {
-  id: 6,                                  // unique, never reuse (it's the save key)
+  id: 51,                                 // unique, never reuse (it's the save key)
   icon: '🦁',                             // shown on the map
   animals: ['lion', 'elephant', 'eagle', 'dog', 'cat', 'fish'],
-  rule: { size: 'big' },                  // all keys must match; arrays mean "any of"
+  rule: { size: 'big' },                  // the secret rule (see below)
   fitShare: 0.55,                         // optional: share of new tiles that fit the rule
-  goal: 18,                               // rule-fitting tiles to clear
-  stars: [9, 14],                         // moves for 3 stars / 2 stars
+  goal: 24,                               // rule-fitting tiles to clear
+  stars: [11, 17],                        // moves for 3 stars / 2 stars
   ruleText: { en: 'Only big animals!', el: 'Μόνο μεγάλα ζώα!' },
-  choices: [
-    { pic: '🐘', correct: true, label: { en: 'Big animals', el: 'Μεγάλα ζώα' } },
-    { pic: '🐭', label: { en: 'Small animals', el: 'Μικρά ζώα' } },
-    { pic: '🌳', label: { en: 'Live on land', el: 'Ζουν στη στεριά' } }
-  ]
+  choices: [right(C.big), C.small, C.land] // the 3 guess pictures
 }
 ```
 
-New animals go in `js/animals.js`. Open the browser console after editing:
-`levels.js` warns about unknown animals, rules nothing fits (or everything
-fits), and choice lists without exactly one correct answer.
+**Rules** test the animal attributes in `js/animals.js`: `habitat`
+(land/water/air), `legs` (0/2/4/6), `size` (small/big), `colour`, `covering`
+(fur/feathers/scales/skin/shell), `farm` (true/false) and `id`.
+
+| Rule | Means |
+|---|---|
+| `{ habitat: 'land', size: 'small' }` | every listed attribute must match (AND) |
+| `{ legs: [2, 4] }` | an array means "any of these" |
+| `{ not: { id: 'cat' } }` | everyone except… |
+| `{ any: [{ id: 'dog' }, { legs: 0 }] }` | either rule (OR) |
+
+**Guess pictures:** `C` at the top of `levels.js` has ready-made choices
+(`C.water`, `C.fur`, `C.legs4`, `C.green`, …). `only('dog', 'Only dogs', 'Μόνο σκυλάκια')`
+and `pick(pic, en, el, rule)` make new ones, and `right(choice)` marks the
+correct answer. Give wrong choices a `rule` so the checker can test them.
+
+New animals go in `js/animals.js`. Open the browser console after editing.
+`levels.js` warns about duplicate ids, unknown animals, rules that nothing (or
+everything) fits, choice lists without exactly one correct answer, and wrong
+choices that would pick exactly the same animals as the real rule. A child
+couldn't tell those apart.
 
 ## Notes
 
 - Every new board, and every board after a turn, is checked to contain at least
-  one valid rule-fitting move. If there isn't one, the animals shuffle (with a little spin).
+  one valid rule-fitting move. Animals that are about to drop in are picked so
+  that one exists. If there still isn't one, the board shuffles (with a little spin).
+- Finishing a level always unlocks the next, including in saves made before
+  new levels were added.
 - Progress is saved in the browser under the key `animal-logic-land:v1`. To
   reset, clear the site data, or run `localStorage.clear()` in the console.
 - Emoji look slightly different on each device (Apple, Google, Microsoft

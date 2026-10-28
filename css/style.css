@@ -151,6 +151,7 @@ button { font-family: var(--font); color: var(--ink); }
 
 .map-deco span {
   position: absolute;
+  transform: translateY(-50%);
   font-size: 38px;
   opacity: 0.9;
 }

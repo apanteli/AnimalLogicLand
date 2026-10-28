@@ -232,6 +232,11 @@
           spawns.push({ tile: tile, r: r, c: c, fromR: r - missing });
         }
       }
+      // New tiles aren't on screen yet, so if they would leave no valid move,
+      // quietly pick other animals for them. Reshuffles become rare.
+      for (let tries = 0; tries < 10 && spawns.length && !this.hasValidMove(); tries++) {
+        spawns.forEach(function (s) { s.tile.kind = this.randomKind(); }, this);
+      }
       return { falls: falls, spawns: spawns };
     }
 

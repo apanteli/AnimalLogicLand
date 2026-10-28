@@ -6,7 +6,9 @@
 (function (AL) {
   'use strict';
 
-  const MAP_ROW_PX = 120; // vertical space per level node on the map
+  const MAP_STEP_PX = 110; // minimum vertical distance between level nodes
+  const MAP_EDGE_PX = 90;  // space below level 1 and above the last level
+  const SCENERY = ['🌳', '🌻', '🍄', '🌊', '☁️', '🌷', '🌵', '🌈', '🌴', '🍀'];
 
   function $(id) { return document.getElementById(id); }
 
@@ -23,14 +25,17 @@
     return copy;
   }
 
-  /** Zig-zag spots for n level nodes, level 1 at the bottom (percent units). */
-  function mapSpots(n) {
+  /**
+   * Zig-zag spots for n level nodes on a map `height` px tall, level 1 at the
+   * bottom. Returned in percent so the SVG path (viewBox 0 0 100 100) and the
+   * nodes share coordinates.
+   */
+  function mapSpots(n, height) {
+    const step = n > 1 ? Math.max(MAP_STEP_PX, (height - 2 * MAP_EDGE_PX) / (n - 1)) : 0;
     const spots = [];
     for (let i = 0; i < n; i++) {
-      spots.push({
-        x: i % 2 === 0 ? 30 : 70,
-        y: n === 1 ? 50 : 88 - i * (76 / (n - 1))
-      });
+      const fromBottom = n > 1 ? MAP_EDGE_PX + i * step : height / 2;
+      spots.push({ x: i % 2 === 0 ? 30 : 70, y: 100 * (height - fromBottom) / height });
     }
     return spots;
   }
@@ -154,18 +159,36 @@
       this.setOwl(false);
       this.showScreen('map');
       this.renderMap();
-      // Level 1 is at the bottom; scroll there when the map is taller than the screen.
+      this.scrollToCurrentLevel();
+    },
+
+    /** Centre the map on the newest unlocked level. */
+    scrollToCurrentLevel: function () {
       const scroller = $('map-scroll');
-      scroller.scrollTop = scroller.scrollHeight;
+      const node = $('map-nodes').children[this.state.unlocked - 1];
+      if (!node) return;
+      scroller.scrollTop = node.offsetTop + node.offsetHeight / 2 - scroller.clientHeight / 2;
     },
 
     renderMap: function () {
       const self = this;
       const levels = AL.LEVELS;
-      const spots = mapSpots(levels.length);
-      $('map').style.minHeight = (levels.length * MAP_ROW_PX) + 'px';
+      const height = Math.max($('map-scroll').clientHeight, 2 * MAP_EDGE_PX + (levels.length - 1) * MAP_STEP_PX);
+      const spots = mapSpots(levels.length, height);
+      $('map').style.height = height + 'px';
       $('map-road').setAttribute('d', pathThrough(spots));
       $('map-dots').setAttribute('d', pathThrough(spots));
+
+      // A bit of scenery beside each level, on the side away from the path.
+      const deco = $('map-deco');
+      deco.innerHTML = '';
+      spots.forEach(function (spot, i) {
+        const item = document.createElement('span');
+        item.textContent = SCENERY[i % SCENERY.length];
+        item.style.left = (spot.x < 50 ? 82 : 6) + '%';
+        item.style.top = spot.y + '%';
+        deco.appendChild(item);
+      });
 
       const holder = $('map-nodes');
       holder.innerHTML = '';
