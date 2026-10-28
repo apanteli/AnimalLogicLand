@@ -18,5 +18,12 @@
  */
 (function (AL) {
   'use strict';
-  AL.FIREBASE_CONFIG = null;
+  AL.FIREBASE_CONFIG = {
+    apiKey: 'AIzaSyCY1jZEw4QX7ovZOhmvkq_2S3scLw4wCto',
+    authDomain: 'animallogicland.firebaseapp.com',
+    projectId: 'animallogicland',
+    storageBucket: 'animallogicland.firebasestorage.app',
+    messagingSenderId: '538577216531',
+    appId: '1:538577216531:web:574dca014a6106717f8be6'
+  };
 })(window.AL = window.AL || {});
