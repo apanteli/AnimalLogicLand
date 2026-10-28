@@ -510,6 +510,52 @@ button { font-family: var(--font); color: var(--ink); }
   animation-fill-mode: forwards;
 }
 
+/* ---------- grown-ups / cloud saves ---------- */
+
+.map-footer .account-btn { margin-right: auto; }
+.account-btn.signed-in { background: #e3f6ff; }
+
+.account-text {
+  margin: 0 0 14px;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.gate-input {
+  display: block;
+  width: 140px;
+  margin: 0 auto 16px;
+  padding: 10px;
+  border: 4px solid #e2dcef;
+  border-radius: 18px;
+  font: 900 32px var(--font);
+  color: var(--ink);
+  text-align: center;
+  -webkit-user-select: text;
+  user-select: text;
+}
+.gate-input:focus { outline: none; border-color: var(--pink); }
+
+.pill-btn {
+  display: block;
+  min-width: 200px;
+  min-height: 56px;
+  margin: 0 auto;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 999px;
+  background: var(--sun);
+  box-shadow: 0 5px 0 var(--sun-dark);
+  font-size: 19px;
+  font-weight: 900;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.pill-btn.secondary { background: #f1eef7; box-shadow: 0 5px 0 var(--shadow); }
+.pill-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--shadow); }
+
 /* ==========================================================================
    Keyframes
    ========================================================================== */

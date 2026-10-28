@@ -82,6 +82,15 @@
       document.addEventListener('pointerdown', function () { AL.Sound.unlock(); });
 
       this.showMap();
+
+      // Optional cloud saves: only active when firebase-config.js is filled in.
+      const self = this;
+      AL.Cloud.init({
+        onUser: function (user) { self.onCloudUser(user); },
+        onProgress: function (remote) { self.onCloudProgress(remote); }
+      }).then(function (ok) {
+        $('btn-account').classList.toggle('hidden', !ok);
+      });
     },
 
     bindButtons: function () {
@@ -100,8 +109,16 @@
       $('btn-win-map').addEventListener('click', function () { self.showMap(); });
       $('btn-win-replay').addEventListener('click', function () { self.startLevel(self.levelIndex); });
       $('btn-win-next').addEventListener('click', function () { self.startLevel(self.levelIndex + 1); });
+      $('btn-account').addEventListener('click', function () { self.openAccount(); });
+      $('btn-account-close').addEventListener('click', function () { self.hideModal('modal-account'); });
+      $('btn-gate-ok').addEventListener('click', function () { self.checkGate(); });
+      $('gate-answer').addEventListener('keydown', function (e) { if (e.key === 'Enter') self.checkGate(); });
+      $('btn-sign-in').addEventListener('click', function () { self.signIn(); });
+      $('btn-sign-out').addEventListener('click', function () { AL.Cloud.signOut(); });
       document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && !$('modal-guess').classList.contains('hidden')) self.closeGuess();
+        if (e.key !== 'Escape') return;
+        if (!$('modal-guess').classList.contains('hidden')) self.closeGuess();
+        self.hideModal('modal-account');
       });
     },
 
@@ -328,6 +345,7 @@
       };
       this.state.unlocked = Math.min(AL.LEVELS.length, Math.max(this.state.unlocked, this.levelIndex + 2));
       AL.Storage.save(this.state);
+      AL.Cloud.push(this.state);
     },
 
     onWin: async function (result) {
@@ -383,6 +401,76 @@
         layer.appendChild(bit);
       }
       setTimeout(function () { layer.innerHTML = ''; }, 4500);
+    },
+
+    // ---------------------------------------------------------------- cloud saves
+
+    onCloudUser: function (user) {
+      const btn = $('btn-account');
+      btn.textContent = user ? '☁️' : '👤';
+      btn.classList.toggle('signed-in', !!user);
+      this.refreshAccountPanel();
+    },
+
+    /** Progress arrived from the cloud (null if this account has none yet). */
+    onCloudProgress: function (remote) {
+      const merged = AL.Storage.mergeProgress(this.state, remote || {});
+      if (!AL.Storage.sameProgress(merged, this.state)) {
+        this.state.unlocked = merged.unlocked;
+        this.state.levels = merged.levels;
+        AL.Storage.save(this.state);
+        if (!$('screen-map').classList.contains('hidden')) this.renderMap();
+      }
+      // This device knows something the cloud doesn't yet: send it up.
+      if (!remote || !AL.Storage.sameProgress(merged, remote)) AL.Cloud.push(this.state);
+    },
+
+    /** The account popup starts with a small sum, so children don't sign out by accident. */
+    openAccount: function () {
+      AL.Sound.play('tap');
+      $('account-gate').classList.remove('hidden');
+      $('account-panel').classList.add('hidden');
+      this.newGateQuestion();
+      this.showModal('modal-account');
+      $('gate-answer').focus();
+    },
+
+    newGateQuestion: function () {
+      const a = 6 + Math.floor(Math.random() * 4);
+      const b = 6 + Math.floor(Math.random() * 4);
+      this.gateAnswer = a * b;
+      $('gate-question').textContent = AL.t('gateQuestion').replace('{a}', a).replace('{b}', b);
+      $('gate-answer').value = '';
+    },
+
+    checkGate: function () {
+      if (parseInt($('gate-answer').value, 10) === this.gateAnswer) {
+        $('account-gate').classList.add('hidden');
+        $('account-panel').classList.remove('hidden');
+        this.refreshAccountPanel();
+      } else {
+        AL.Sound.play('softNo');
+        this.toast('🙂 ' + AL.t('gateWrong'));
+        this.newGateQuestion();
+      }
+    },
+
+    refreshAccountPanel: function () {
+      const user = AL.Cloud.user;
+      $('account-status').textContent = user
+        ? AL.t('signedInAs') + ' ' + (user.email || user.displayName || '')
+        : AL.t('syncInfo');
+      $('btn-sign-in').classList.toggle('hidden', !!user);
+      $('btn-sign-out').classList.toggle('hidden', !user);
+    },
+
+    signIn: async function () {
+      try {
+        await AL.Cloud.signIn();
+      } catch (e) {
+        console.warn('Sign-in failed:', e);
+        this.toast('⚠️ ' + AL.t('signInFailed'));
+      }
     },
 
     toast: function (text) {

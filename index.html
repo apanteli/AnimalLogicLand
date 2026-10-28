@@ -33,6 +33,7 @@
       </div>
 
       <footer class="map-footer">
+        <button id="btn-account" class="round-btn account-btn hidden" data-i18n-aria="account">👤</button>
         <button id="btn-lang" class="round-btn lang-btn" data-i18n-aria="lang">EN</button>
         <button class="round-btn btn-mute" data-i18n-aria="mute">🔊</button>
       </footer>
@@ -93,6 +94,25 @@
       </div>
     </div>
 
+    <!-- ============ ACCOUNT POPUP (grown-ups, cloud saves) ============ -->
+    <div class="modal hidden" id="modal-account" role="dialog" aria-modal="true" aria-labelledby="account-title">
+      <div class="modal-card">
+        <button class="close-btn" id="btn-account-close" data-i18n-aria="close">✖</button>
+        <div class="modal-icon">☁️</div>
+        <h2 id="account-title" data-i18n="grownUps">For grown-ups</h2>
+        <div id="account-gate">
+          <p class="account-text" id="gate-question"></p>
+          <input id="gate-answer" class="gate-input" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" maxlength="3" aria-labelledby="gate-question">
+          <button class="pill-btn" id="btn-gate-ok" data-i18n="ok">OK</button>
+        </div>
+        <div id="account-panel" class="hidden">
+          <p class="account-text" id="account-status"></p>
+          <button class="pill-btn" id="btn-sign-in" data-i18n="signIn">Sign in with Google</button>
+          <button class="pill-btn secondary" id="btn-sign-out" data-i18n="signOut">Sign out</button>
+        </div>
+      </div>
+    </div>
+
     <div class="toast hidden" id="toast" role="status"></div>
     <div class="confetti" id="confetti" aria-hidden="true"></div>
   </div>
@@ -102,6 +122,8 @@
   <script src="js/levels.js"></script>
   <script src="js/i18n.js"></script>
   <script src="js/storage.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/cloud.js"></script>
   <script src="js/sound.js"></script>
   <script src="js/board.js"></script>
   <script src="js/game.js"></script>

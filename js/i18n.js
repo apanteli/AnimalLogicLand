@@ -22,7 +22,17 @@
       next: 'Next level',
       close: 'Close',
       mute: 'Sound on / off',
-      lang: 'Language'
+      lang: 'Language',
+      account: 'Grown-ups: save progress',
+      grownUps: 'For grown-ups',
+      gateQuestion: 'What is {a} × {b}?',
+      gateWrong: 'Not quite. Ask a grown-up!',
+      ok: 'OK',
+      syncInfo: 'Sign in to keep the stars on all your devices.',
+      signIn: 'Sign in with Google',
+      signOut: 'Sign out',
+      signedInAs: 'Signed in as',
+      signInFailed: "Sign-in didn't work. Please try again."
     },
     el: {
       title: 'Η Χώρα των Έξυπνων Ζώων',
@@ -39,7 +49,17 @@
       next: 'Επόμενο επίπεδο',
       close: 'Κλείσιμο',
       mute: 'Ήχος ναι / όχι',
-      lang: 'Γλώσσα'
+      lang: 'Γλώσσα',
+      account: 'Για μεγάλους: αποθήκευση προόδου',
+      grownUps: 'Για μεγάλους',
+      gateQuestion: 'Πόσο κάνει {a} × {b};',
+      gateWrong: 'Όχι ακριβώς. Ζήτα βοήθεια από έναν μεγάλο!',
+      ok: 'OK',
+      syncInfo: 'Συνδεθείτε για να κρατάτε τα αστέρια σε όλες τις συσκευές σας.',
+      signIn: 'Σύνδεση με Google',
+      signOut: 'Αποσύνδεση',
+      signedInAs: 'Λογαριασμός:',
+      signInFailed: 'Η σύνδεση δεν πέτυχε. Δοκιμάστε ξανά.'
     }
   };
 

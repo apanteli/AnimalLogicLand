@@ -6,6 +6,7 @@ and fill the progress bar; matches that don't just wobble and stay. No timers,
 no lives, no ads, no purchases.
 
 Plain HTML + CSS + JavaScript. No build step, no libraries, no backend.
+Optional cloud saves use Firebase, loaded only when you configure it.
 
 ## Run it locally
 
@@ -52,6 +53,50 @@ Wi-Fi, open `http://<your-computer-ip>:8000` (for Python, start it with
 
 All paths are relative, so it also works from a sub-folder.
 
+## Cloud saves (optional parent sign-in)
+
+By default, progress is saved on each device only. If you connect a free
+Firebase project, a **grown-up** can sign in with Google (👤 button on the map,
+behind a quick sum so children don't tap it by accident). The stars then follow
+that account to every device and update live.
+
+Merging is safe: each level keeps its best stars and any bonus star from any
+device, so nothing is ever lost. Language and sound stay per device. Signing out
+keeps the progress on that device.
+
+### Setup (about 5 minutes, free "Spark" plan)
+
+1. Go to <https://console.firebase.google.com> → **Create a project**.
+   Google Analytics isn't needed.
+2. **Build → Authentication → Get started → Sign-in method → Google →
+   Enable**, choose a support email, **Save**.
+3. **Authentication → Settings → Authorized domains → Add domain**: add
+   `apanteli.github.io` (your GitHub Pages domain). `localhost` is already there.
+4. **Build → Firestore Database → Create database**, pick a location near
+   you (e.g. `eur3`), start in **production mode**. Then open the **Rules** tab,
+   replace the contents with [`firestore.rules`](firestore.rules), and **Publish**.
+5. **Project settings** (⚙️) → **General → Your apps → Web (`</>`)**, register
+   the app (no Firebase Hosting needed), and copy the `firebaseConfig` values
+   into `js/firebase-config.js`:
+   ```js
+   AL.FIREBASE_CONFIG = {
+     apiKey: '…',
+     authDomain: 'your-project.firebaseapp.com',
+     projectId: 'your-project',
+     appId: '…'
+   };
+   ```
+6. Commit and push. The 👤 button appears on the map.
+
+Sign-in needs a real web address. It works on GitHub Pages, Netlify and
+`http://localhost:8000` (see "Run it locally"), but not when you double-click
+`index.html`. There, the game just works offline as before.
+
+The config values aren't secrets. Access is enforced by `firestore.rules`:
+each account can only read and write its own `players/{uid}` document, which
+holds only stars and unlocks. Firebase Authentication stores the Google
+account's name and email. If you deploy on Netlify, add that domain in step 3 too.
+
 ## How to play
 
 - Swap two neighbouring animals (**swipe**, or **tap one then tap its neighbour**)
@@ -74,7 +119,10 @@ css/style.css     all styling and animations
 js/animals.js     animal data (habitat, legs, size, colour) + AL.fitsRule()
 js/levels.js      the level list (rules, goals, star limits, guess pictures)
 js/i18n.js        English / Greek labels
-js/storage.js     progress + settings in localStorage
+js/storage.js     progress + settings in localStorage, merging progress
+js/firebase-config.js  your Firebase settings (null = cloud saves off)
+js/cloud.js       optional Google sign-in + Firestore sync
+firestore.rules   database security rules to paste into Firebase
 js/sound.js       synthesized sound effects (Web Audio, no files)
 js/board.js       pure match-3 grid logic (no DOM): lines, swaps, gravity, reshuffle
 js/game.js        one level's turn flow: rule checks, progress, hints, guessing
